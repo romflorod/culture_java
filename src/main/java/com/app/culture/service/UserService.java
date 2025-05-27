@@ -1,9 +1,12 @@
 package com.app.culture.service;
 
 import com.app.culture.model.Anime;
+import com.app.culture.model.Movie;
 import com.app.culture.model.User;
 import com.app.culture.model.UserAnime;
+import com.app.culture.model.UserMovie;
 import com.app.culture.repository.UserAnimeRepository;
+import com.app.culture.repository.UserMovieRepository;
 import com.app.culture.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +21,9 @@ public class UserService {
     
     @Autowired
     private UserRepository userRepository;
-    
+
+    @Autowired
+    private UserMovieRepository userMovieRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     
@@ -85,4 +90,36 @@ public class UserService {
     public List<UserAnime> getUserAnimesByStatus(Long userId, String status) {
         return userAnimeRepository.findByUserIdAndStatus(userId, status);
     }
-}
+    // Métodos para manejar películas del usuario
+    public void markMovieForUser(Long userId, Long movieId, String status) {
+        // Buscar si ya existe una relación entre este usuario y película
+        Optional<UserMovie> existingMark = userMovieRepository.findByUserIdAndMovieId(userId, movieId);
+        
+        if (existingMark.isPresent()) {
+            // Actualizar el status
+            UserMovie userMovie = existingMark.get();
+            userMovie.setStatus(status);
+            userMovieRepository.save(userMovie);
+        } else {
+            // Crear nueva relación
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            Movie movie = new Movie();
+            movie.setId(movieId);
+            
+            UserMovie userMovie = new UserMovie();
+            userMovie.setUser(user);
+            userMovie.setMovie(movie);
+            userMovie.setStatus(status);
+            userMovieRepository.save(userMovie);
+        }
+    }
+
+    public List<UserMovie> getUserMovies(Long userId) {
+        return userMovieRepository.findByUserId(userId);
+    }
+
+    public List<UserMovie> getUserMoviesByStatus(Long userId, String status) {
+        return userMovieRepository.findByUserIdAndStatus(userId, status);
+    }
+    }

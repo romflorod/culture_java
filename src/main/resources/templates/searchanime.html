@@ -18,6 +18,7 @@
         <div class="text-end mb-4">
             <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
             <a href="/myanimes" class="btn btn-outline-primary">Mis Animes</a>
+            <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
         </div>
         
         <form th:action="@{/searchanime}" method="post" class="mt-4">
@@ -36,10 +37,20 @@
                 <div class="row">
                     <div class="col-md-4 mb-4" th:each="anime : ${animes}">
                         <div class="card h-100">
+                            <!-- Eliminando el badge de la esquina -->
+                            
                             <img th:src="${anime.imageUrl}" class="card-img-top" alt="Imagen del Anime" style="height: 300px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title" th:text="${anime.title}"></h5>
                                 <p class="card-text" th:text="${#strings.abbreviate(anime.description, 150)}"></p>
+                                
+                                <!-- Añadir badges de estado dentro del card-body -->
+                                <div th:if="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id)}" class="mt-2">
+                                    <span th:if="${userAnimeStatuses.get(anime.id) == 'visto'}" 
+                                          class="badge bg-success">✓ Ya lo has visto</span>
+                                    <span th:if="${userAnimeStatuses.get(anime.id) == 'en_seguimiento'}" 
+                                          class="badge bg-warning">👁 En seguimiento</span>
+                                </div>
                             </div>
                             <div class="card-footer">
                                 <a th:if="${anime.trailerUrl != null && anime.trailerUrl != ''}" 
@@ -48,18 +59,27 @@
                                    class="btn btn-primary">Ver Trailer</a>
                                 
                                 <div class="d-flex justify-content-between mt-2">
+                                    <!-- Botones condicionales según estado -->
                                     <form th:action="@{/markAnime}" method="post">
                                         <input type="hidden" name="animeId" th:value="${anime.id}">
                                         <input type="hidden" name="status" value="visto">
                                         <input type="hidden" name="query" th:value="${query}">
-                                        <button type="submit" class="btn btn-success">Visto</button>
+                                        <button type="submit" 
+                                                th:class="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id) && userAnimeStatuses.get(anime.id) == 'visto'} ? 'btn btn-outline-success' : 'btn btn-success'">
+                                            <span th:if="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id) && userAnimeStatuses.get(anime.id) == 'visto'}">✓</span> 
+                                            Visto
+                                        </button>
                                     </form>
                                     
                                     <form th:action="@{/markAnime}" method="post">
                                         <input type="hidden" name="animeId" th:value="${anime.id}">
                                         <input type="hidden" name="status" value="en_seguimiento">
                                         <input type="hidden" name="query" th:value="${query}">
-                                        <button type="submit" class="btn btn-warning">Seguir</button>
+                                        <button type="submit" 
+                                                th:class="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id) && userAnimeStatuses.get(anime.id) == 'en_seguimiento'} ? 'btn btn-outline-warning' : 'btn btn-warning'">
+                                            <span th:if="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id) && userAnimeStatuses.get(anime.id) == 'en_seguimiento'}">👁</span> 
+                                            Seguir
+                                        </button>
                                     </form>
                                 </div>
                             </div>

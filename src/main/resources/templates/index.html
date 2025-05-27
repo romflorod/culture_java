@@ -16,6 +16,8 @@
                     <h2>¡Hola <span th:text="${username}"></span>!</h2>
                     <p>Has iniciado sesión correctamente.</p>
                     <a href="/searchanime" class="btn btn-primary mt-3">Buscar Animes</a>
+                    <a href="/searchmovie" class="btn btn-primary mt-2">Buscar Películas</a>
+                    <a href="/mymovies" class="btn btn-info mt-2">Mis Películas</a>
                     <a href="/logout" class="btn btn-danger mt-3">Cerrar sesión</a>
                 </div>
                 <div th:unless="${authenticated}">

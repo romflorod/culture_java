@@ -19,31 +19,48 @@ public class AnimeService {
 
     private final String JIKAN_API_URL = "https://api.jikan.moe/v4/anime?q=";
 
-    public List<Anime> fetchAndSaveAnimes(String query) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = JIKAN_API_URL + query;
+   public List<Anime> fetchAndSaveAnimes(String query) {
+    RestTemplate restTemplate = new RestTemplate();
+    String url = JIKAN_API_URL + query;
 
-        // Realizar la solicitud a la API
-        JsonNode response = restTemplate.getForObject(url, JsonNode.class);
+    // Realizar la solicitud a la API
+    JsonNode response = restTemplate.getForObject(url, JsonNode.class);
 
-        List<Anime> animes = new ArrayList<>();
-        if (response != null && response.has("data")) {
-            for (JsonNode animeNode : response.get("data")) {
-                Anime anime = new Anime();
-                anime.setTitle(animeNode.get("title").asText());
-                anime.setDescription(animeNode.has("synopsis") ? animeNode.get("synopsis").asText("") : ""); // Manejar descripciones nulas
+    List<Anime> animes = new ArrayList<>();
+    if (response != null && response.has("data")) {
+        for (JsonNode animeNode : response.get("data")) {
+            String title = animeNode.get("title").asText();
+            
+            // Obtener la lista de animes con ese título
+            List<Anime> existingAnimes = animeRepository.findByTitle(title);
+            
+            Anime anime;
+            if (!existingAnimes.isEmpty()) {
+                // Si existe al menos uno, usamos el primero
+                anime = existingAnimes.get(0);
+                
+                // Opcionalmente, actualizar datos si es necesario
+                if (animeNode.has("synopsis") && !anime.getDescription().equals(animeNode.get("synopsis").asText(""))) {
+                    anime.setDescription(animeNode.has("synopsis") ? animeNode.get("synopsis").asText("") : "");
+                }
+            } else {
+                // Si no existe, crear uno nuevo
+                anime = new Anime();
+                anime.setTitle(title);
+                anime.setDescription(animeNode.has("synopsis") ? animeNode.get("synopsis").asText("") : "");
                 anime.setImageUrl(animeNode.get("images").get("jpg").get("image_url").asText(""));
                 anime.setTrailerUrl(animeNode.has("trailer") && !animeNode.get("trailer").isNull() ? 
-                                   animeNode.get("trailer").get("url").asText("") : "");
-
-                // Guardar en la base de datos
-                animeRepository.save(anime);
-                animes.add(anime);
+                                  animeNode.get("trailer").get("url").asText("") : "");
             }
-        }
 
-        return animes;
+            // Guardar en la base de datos (ya sea nuevo o existente)
+            animeRepository.save(anime);
+            animes.add(anime);
+        }
     }
+
+    return animes;
+}
     
     public Optional<Anime> getAnimeById(Long id) {
         return animeRepository.findById(id);

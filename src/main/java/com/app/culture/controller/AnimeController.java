@@ -10,7 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AnimeController {
@@ -22,15 +24,46 @@ public class AnimeController {
     private UserService userService;
 
     @GetMapping("/searchanime")
-    public String searchAnimePage() {
+    public String searchAnimePage(HttpSession session, Model model) {
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        // Si el usuario está autenticado, cargamos sus animes marcados
+        if (userId != null) {
+            Map<Long, String> userAnimeStatuses = new HashMap<>();
+            List<UserAnime> userAnimes = userService.getUserAnimes(userId);
+            
+            for (UserAnime userAnime : userAnimes) {
+                userAnimeStatuses.put(userAnime.getAnime().getId(), userAnime.getStatus());
+            }
+            
+            model.addAttribute("userAnimeStatuses", userAnimeStatuses);
+        }
+        
         return "searchanime";
     }
 
     @PostMapping("/searchanime")
-    public String searchAnime(@RequestParam String query, Model model) {
+    public String searchAnime(@RequestParam String query, HttpSession session, Model model) {
         List<Anime> animes = animeService.fetchAndSaveAnimes(query);
+        
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        // Si el usuario está autenticado, verificamos qué animes ya ha marcado
+        if (userId != null) {
+            Map<Long, String> userAnimeStatuses = new HashMap<>();
+            List<UserAnime> userAnimes = userService.getUserAnimes(userId);
+            
+            for (UserAnime userAnime : userAnimes) {
+                userAnimeStatuses.put(userAnime.getAnime().getId(), userAnime.getStatus());
+            }
+            
+            model.addAttribute("userAnimeStatuses", userAnimeStatuses);
+        }
+        
         model.addAttribute("animes", animes);
-        model.addAttribute("query", query); // Agregar la consulta al modelo
+        model.addAttribute("query", query);
         return "searchanime";
     }
     
@@ -50,9 +83,19 @@ public class AnimeController {
             if (query != null && !query.isEmpty()) {
                 // Ejecutar la misma búsqueda de nuevo para mantener resultados
                 List<Anime> animes = animeService.fetchAndSaveAnimes(query);
+                
+                // Obtener estados actualizados de los animes del usuario
+                Map<Long, String> userAnimeStatuses = new HashMap<>();
+                List<UserAnime> userAnimes = userService.getUserAnimes(userId);
+                
+                for (UserAnime userAnime : userAnimes) {
+                    userAnimeStatuses.put(userAnime.getAnime().getId(), userAnime.getStatus());
+                }
+                
+                model.addAttribute("userAnimeStatuses", userAnimeStatuses);
                 model.addAttribute("animes", animes);
                 model.addAttribute("marked", true);
-                model.addAttribute("query", query); // Pasamos la consulta para mantenerla en el formulario
+                model.addAttribute("query", query);
                 return "searchanime";
             }
             
