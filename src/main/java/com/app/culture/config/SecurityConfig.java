@@ -22,7 +22,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register", "/h2-console/**", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/h2-console/**", "/css/**", "/js/**","/searchanime","/api/animes/**").permitAll() // Permitir acceso público a /api/animes/**
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
