@@ -9,10 +9,21 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Buscar Animes</h1>
+        
+        <!-- Mensaje de éxito -->
+        <div th:if="${param.marked != null || (marked != null && marked)}" class="alert alert-success">
+            Anime marcado correctamente.
+        </div>
+        
+        <div class="text-end mb-4">
+            <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
+            <a href="/myanimes" class="btn btn-outline-primary">Mis Animes</a>
+        </div>
+        
         <form th:action="@{/searchanime}" method="post" class="mt-4">
             <div class="mb-3">
                 <label for="query" class="form-label">Nombre del Anime</label>
-                <input type="text" id="query" name="query" class="form-control" placeholder="Ejemplo: Naruto" required>
+                <input type="text" id="query" name="query" class="form-control" th:value="${query}" placeholder="Ejemplo: Naruto" required>
             </div>
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary">Buscar</button>
@@ -24,12 +35,33 @@
             <div th:if="${animes != null}">
                 <div class="row">
                     <div class="col-md-4 mb-4" th:each="anime : ${animes}">
-                        <div class="card">
-                            <img th:src="${anime.imageUrl}" class="card-img-top" alt="Imagen del Anime">
+                        <div class="card h-100">
+                            <img th:src="${anime.imageUrl}" class="card-img-top" alt="Imagen del Anime" style="height: 300px; object-fit: cover;">
                             <div class="card-body">
                                 <h5 class="card-title" th:text="${anime.title}"></h5>
-                                <p class="card-text" th:text="${anime.description}"></p>
-                                <a th:href="${anime.trailerUrl}" target="_blank" class="btn btn-primary" th:if="${anime.trailerUrl != null}">Ver Trailer</a>
+                                <p class="card-text" th:text="${#strings.abbreviate(anime.description, 150)}"></p>
+                            </div>
+                            <div class="card-footer">
+                                <a th:if="${anime.trailerUrl != null && anime.trailerUrl != ''}" 
+                                   th:href="${anime.trailerUrl}" 
+                                   target="_blank" 
+                                   class="btn btn-primary">Ver Trailer</a>
+                                
+                                <div class="d-flex justify-content-between mt-2">
+                                    <form th:action="@{/markAnime}" method="post">
+                                        <input type="hidden" name="animeId" th:value="${anime.id}">
+                                        <input type="hidden" name="status" value="visto">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" class="btn btn-success">Visto</button>
+                                    </form>
+                                    
+                                    <form th:action="@{/markAnime}" method="post">
+                                        <input type="hidden" name="animeId" th:value="${anime.id}">
+                                        <input type="hidden" name="status" value="en_seguimiento">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" class="btn btn-warning">Seguir</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>

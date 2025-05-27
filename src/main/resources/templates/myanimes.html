@@ -1,0 +1,65 @@
+aculture\culture\src\main\resources\templates\myanimes.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mis Animes</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Mis Animes</h1>
+        
+        <div class="text-end mb-4">
+            <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
+            <a href="/searchanime" class="btn btn-outline-primary">Buscar Animes</a>
+        </div>
+        
+        <!-- Animes vistos -->
+        <div class="mt-5">
+            <h2>Animes vistos</h2>
+            <div th:if="${watched != null && !watched.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userAnime : ${watched}">
+                        <div class="card h-100">
+                            <img th:src="${userAnime.anime.imageUrl}" class="card-img-top" alt="Imagen del Anime" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userAnime.anime.title}"></h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(userAnime.anime.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'Marcado como visto el ' + ${#temporals.format(userAnime.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${watched == null || watched.isEmpty()}">
+                <p>No has marcado ningún anime como visto.</p>
+            </div>
+        </div>
+        
+        <!-- Animes en seguimiento -->
+        <div class="mt-5">
+            <h2>Animes en seguimiento</h2>
+            <div th:if="${following != null && !following.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userAnime : ${following}">
+                        <div class="card h-100">
+                            <img th:src="${userAnime.anime.imageUrl}" class="card-img-top" alt="Imagen del Anime" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userAnime.anime.title}"></h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(userAnime.anime.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'En seguimiento desde ' + ${#temporals.format(userAnime.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${following == null || following.isEmpty()}">
+                <p>No estás siguiendo ningún anime.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

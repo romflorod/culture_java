@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnimeService {
@@ -32,7 +33,8 @@ public class AnimeService {
                 anime.setTitle(animeNode.get("title").asText());
                 anime.setDescription(animeNode.has("synopsis") ? animeNode.get("synopsis").asText("") : ""); // Manejar descripciones nulas
                 anime.setImageUrl(animeNode.get("images").get("jpg").get("image_url").asText(""));
-                anime.setTrailerUrl(animeNode.get("trailer").get("url").asText(""));
+                anime.setTrailerUrl(animeNode.has("trailer") && !animeNode.get("trailer").isNull() ? 
+                                   animeNode.get("trailer").get("url").asText("") : "");
 
                 // Guardar en la base de datos
                 animeRepository.save(anime);
@@ -41,5 +43,13 @@ public class AnimeService {
         }
 
         return animes;
+    }
+    
+    public Optional<Anime> getAnimeById(Long id) {
+        return animeRepository.findById(id);
+    }
+    
+    public List<Anime> getAllAnimes() {
+        return animeRepository.findAll();
     }
 }

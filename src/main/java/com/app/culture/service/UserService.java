@@ -1,12 +1,17 @@
 package com.app.culture.service;
 
+import com.app.culture.model.Anime;
 import com.app.culture.model.User;
+import com.app.culture.model.UserAnime;
+import com.app.culture.repository.UserAnimeRepository;
 import com.app.culture.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -16,6 +21,9 @@ public class UserService {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private UserAnimeRepository userAnimeRepository;
     
     public User registerNewUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -43,5 +51,38 @@ public class UserService {
             return passwordEncoder.matches(password, user.getPassword());
         }
         return false;
+    }
+    
+    // Métodos para manejar animes del usuario
+    public void markAnimeForUser(Long userId, Long animeId, String status) {
+        // Buscar si ya existe una relación entre este usuario y anime
+        Optional<UserAnime> existingMark = userAnimeRepository.findByUserIdAndAnimeId(userId, animeId);
+        
+        if (existingMark.isPresent()) {
+            // Actualizar el status
+            UserAnime userAnime = existingMark.get();
+            userAnime.setStatus(status);
+            userAnimeRepository.save(userAnime);
+        } else {
+            // Crear nueva relación
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            Anime anime = new Anime();
+            anime.setId(animeId);
+            
+            UserAnime userAnime = new UserAnime();
+            userAnime.setUser(user);
+            userAnime.setAnime(anime);
+            userAnime.setStatus(status);
+            userAnimeRepository.save(userAnime);
+        }
+    }
+    
+    public List<UserAnime> getUserAnimes(Long userId) {
+        return userAnimeRepository.findByUserId(userId);
+    }
+    
+    public List<UserAnime> getUserAnimesByStatus(Long userId, String status) {
+        return userAnimeRepository.findByUserIdAndStatus(userId, status);
     }
 }

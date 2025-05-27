@@ -1,13 +1,14 @@
 package com.app.culture.controller;
 
 import com.app.culture.model.Anime;
+import com.app.culture.model.UserAnime;
 import com.app.culture.service.AnimeService;
+import com.app.culture.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,6 +17,9 @@ public class AnimeController {
 
     @Autowired
     private AnimeService animeService;
+    
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/searchanime")
     public String searchAnimePage() {
@@ -26,6 +30,52 @@ public class AnimeController {
     public String searchAnime(@RequestParam String query, Model model) {
         List<Anime> animes = animeService.fetchAndSaveAnimes(query);
         model.addAttribute("animes", animes);
+        model.addAttribute("query", query); // Agregar la consulta al modelo
         return "searchanime";
+    }
+    
+    @PostMapping("/markAnime")
+    public String markAnime(@RequestParam Long animeId,
+                        @RequestParam String status,
+                        @RequestParam(required = false) String query,
+                        HttpSession session,
+                        Model model) {
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        if (userId != null) {
+            userService.markAnimeForUser(userId, animeId, status);
+            
+            // Si hay una consulta de búsqueda, redirigir de nuevo a los resultados
+            if (query != null && !query.isEmpty()) {
+                // Ejecutar la misma búsqueda de nuevo para mantener resultados
+                List<Anime> animes = animeService.fetchAndSaveAnimes(query);
+                model.addAttribute("animes", animes);
+                model.addAttribute("marked", true);
+                model.addAttribute("query", query); // Pasamos la consulta para mantenerla en el formulario
+                return "searchanime";
+            }
+            
+            return "redirect:/searchanime?marked=true";
+        }
+        
+        return "redirect:/login";
+    }
+
+    @GetMapping("/myanimes")
+    public String myAnimes(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        
+        if (userId != null) {
+            List<UserAnime> watched = userService.getUserAnimesByStatus(userId, "visto");
+            List<UserAnime> following = userService.getUserAnimesByStatus(userId, "en_seguimiento");
+            
+            model.addAttribute("watched", watched);
+            model.addAttribute("following", following);
+            
+            return "myanimes";
+        }
+        
+        return "redirect:/login";
     }
 }
