@@ -24,6 +24,7 @@
             <a href="/mybooks" class="btn btn-outline-primary">Mis Libros</a>
             <a href="/searchanime" class="btn btn-outline-info">Buscar Animes</a>
             <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
+            <a href="/searchmanga" class="btn btn-outline-info">Buscar Mangas</a>
         </div>
         
         <form th:action="@{/searchbook}" method="post" class="mt-4">
@@ -50,6 +51,11 @@
                                 <p class="card-text"><strong>Fecha:</strong> <span th:text="${book.publishedDate}"></span></p>
                                 <p class="card-text"><strong>Páginas:</strong> <span th:text="${book.pageCount}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(book.description, 150)}"></p>
+                                
+                                <!-- Botón para ver detalles -->
+                                <a th:href="@{'/bookdetails/' + ${book.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
                                 
                                 <!-- Mostrar el estado del libro si ya está marcado -->
                                 <div th:if="${userBookStatuses != null && userBookStatuses.containsKey(book.id)}" class="mt-2">

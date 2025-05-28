@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class BookController {
@@ -169,5 +170,37 @@ public class BookController {
         }
         
         return "redirect:/login";
+    }
+    // Añadir este nuevo método al controlador existente
+    @GetMapping("/bookdetails/{id}")
+    public String bookDetails(@PathVariable Long id, HttpSession session, Model model) {
+        try {
+            // Obtener detalles del libro
+            Optional<Book> bookOpt = bookService.getBookById(id);
+            
+            if (bookOpt.isPresent()) {
+                Book book = bookOpt.get();
+                model.addAttribute("book", book);
+                
+                // Verificar si el usuario ha marcado este libro
+                Long userId = (Long) session.getAttribute("userId");
+                if (userId != null) {
+                    Optional<UserBook> userBookOpt = userService.getUserBookByUserIdAndBookId(userId, id);
+                    userBookOpt.ifPresent(userBook -> {
+                        model.addAttribute("userBook", userBook);
+                        model.addAttribute("status", userBook.getStatus());
+                    });
+                }
+                
+                return "bookdetails";
+            } else {
+                System.err.println("Libro con ID " + id + " no encontrado");
+                return "redirect:/searchbook?error=booknotfound";
+            }
+        } catch (Exception e) {
+            System.err.println("Error al acceder a detalles del libro: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/searchbook?error=exception";
+        }
     }
 }

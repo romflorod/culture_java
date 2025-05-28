@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buscar Mangas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Buscar Mangas</h1>
+        
+        <!-- Mensajes de operaciones -->
+        <div th:if="${param.marked != null || (marked != null && marked)}" class="alert alert-success">
+            Manga marcado correctamente.
+        </div>
+        <div th:if="${param.unmarked != null || (unmarked != null && unmarked)}" class="alert alert-info">
+            Manga desmarcado correctamente.
+        </div>
+        
+        <div class="text-end mb-4">
+            <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
+            <a href="/mymangas" class="btn btn-outline-primary">Mis Mangas</a>
+            <a href="/searchanime" class="btn btn-outline-info">Buscar Animes</a>
+            <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
+            <a href="/searchbook" class="btn btn-outline-info">Buscar Libros</a>
+        </div>
+        
+        <form th:action="@{/searchmanga}" method="post" class="mt-4">
+            <div class="mb-3">
+                <label for="query" class="form-label">Nombre del Manga</label>
+                <input type="text" id="query" name="query" class="form-control" th:value="${query}" placeholder="Ejemplo: One Piece" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+
+        <div class="mt-5">
+            <h2>Resultados:</h2>
+            <div th:if="${mangas != null}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="manga : ${mangas}">
+                        <div class="card h-100">
+                            <img th:src="${manga.imageUrl}" class="card-img-top" alt="Portada del Manga" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${manga.title}"></h5>
+                                <p class="card-text"><strong>Capítulos:</strong> <span th:text="${manga.chapters}"></span></p>
+                                <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${manga.volumes}"></span></p>
+                                <p class="card-text"><strong>Estado:</strong> <span th:text="${manga.status}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(manga.description, 150)}"></p>
+                                
+                                <!-- Badges de estado -->
+                                <div th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id)}" class="mt-2">
+                                    <span th:if="${userMangaStatuses.get(manga.id) == 'leido'}" 
+                                          class="badge bg-success">✓ Ya lo has leído</span>
+                                    <span th:if="${userMangaStatuses.get(manga.id) == 'en_seguimiento'}" 
+                                          class="badge bg-warning">👁 En lectura</span>
+                                    <span th:if="${userMangaStatuses.get(manga.id) == 'pendiente'}" 
+                                          class="badge bg-info">📚 Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a th:if="${manga.detailsUrl != null && manga.detailsUrl != ''}" 
+                                   th:href="${manga.detailsUrl}" 
+                                   target="_blank" 
+                                   class="btn btn-primary mb-2 w-100">Ver en MyAnimeList</a>
+                                
+                                <div class="d-flex justify-content-between mt-2">
+                                    <!-- Botones condicionales según estado -->
+                                    <form th:action="@{/markManga}" method="post">
+                                        <input type="hidden" name="mangaId" th:value="${manga.id}">
+                                        <input type="hidden" name="status" value="leido">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" 
+                                                th:class="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'leido'} ? 'btn btn-outline-success' : 'btn btn-success'">
+                                            <span th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'leido'}">✓</span> 
+                                            Leído
+                                        </button>
+                                    </form>
+                                    
+                                    <form th:action="@{/markManga}" method="post">
+                                        <input type="hidden" name="mangaId" th:value="${manga.id}">
+                                        <input type="hidden" name="status" value="en_seguimiento">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" 
+                                                th:class="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'en_seguimiento'} ? 'btn btn-outline-warning' : 'btn btn-warning'">
+                                            <span th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'en_seguimiento'}">👁</span> 
+                                            Leyendo
+                                        </button>
+                                    </form>
+                                    
+                                    <form th:action="@{/markManga}" method="post">
+                                        <input type="hidden" name="mangaId" th:value="${manga.id}">
+                                        <input type="hidden" name="status" value="pendiente">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" 
+                                                th:class="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'pendiente'} ? 'btn btn-outline-info' : 'btn btn-info'">
+                                            <span th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id) && userMangaStatuses.get(manga.id) == 'pendiente'}">📚</span> 
+                                            Pendiente
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Botón para desmarcar, visible solo si está marcado -->
+                                <div th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id)}" class="mt-2">
+                                    <form th:action="@{/unmarkManga}" method="post">
+                                        <input type="hidden" name="mangaId" th:value="${manga.id}">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="bi bi-x-circle"></i> Desmarcar manga
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${mangas == null}">
+                <p>No se han realizado búsquedas aún.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

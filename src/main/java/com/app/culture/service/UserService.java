@@ -2,13 +2,16 @@ package com.app.culture.service;
 
 import com.app.culture.model.Anime;
 import com.app.culture.model.Book;
+import com.app.culture.model.Manga;
 import com.app.culture.model.Movie;
 import com.app.culture.model.User;
 import com.app.culture.model.UserAnime;
 import com.app.culture.model.UserBook;
+import com.app.culture.model.UserManga;
 import com.app.culture.model.UserMovie;
 import com.app.culture.repository.UserAnimeRepository;
 import com.app.culture.repository.UserBookRepository;
+import com.app.culture.repository.UserMangaRepository;
 import com.app.culture.repository.UserMovieRepository;
 import com.app.culture.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,9 @@ public class UserService {
     @Autowired
     private UserAnimeRepository userAnimeRepository;
     
+    @Autowired
+    private UserMangaRepository userMangaRepository;
+
     public User registerNewUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Este nombre de usuario ya está en uso");
@@ -187,5 +193,49 @@ public class UserService {
         } else {
             throw new RuntimeException("No se encontró registro para desmarcar");
         }
-}
+    }
+        public void markMangaForUser(Long userId, Long mangaId, String status) {
+        // Buscar si ya existe una relación entre este usuario y manga
+        Optional<UserManga> existingMark = userMangaRepository.findByUserIdAndMangaId(userId, mangaId);
+        
+        if (existingMark.isPresent()) {
+            // Actualizar el status
+            UserManga userManga = existingMark.get();
+            userManga.setStatus(status);
+            userMangaRepository.save(userManga);
+        } else {
+            // Crear nueva relación
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            Manga manga = new Manga();
+            manga.setId(mangaId);
+            
+            UserManga userManga = new UserManga();
+            userManga.setUser(user);
+            userManga.setManga(manga);
+            userManga.setStatus(status);
+            userMangaRepository.save(userManga);
+        }
+    }
+
+    public List<UserManga> getUserMangas(Long userId) {
+        return userMangaRepository.findByUserId(userId);
+    }
+
+    public List<UserManga> getUserMangasByStatus(Long userId, String status) {
+        return userMangaRepository.findByUserIdAndStatus(userId, status);
+    }
+
+    public void unmarkMangaForUser(Long userId, Long mangaId) {
+        Optional<UserManga> userManga = userMangaRepository.findByUserIdAndMangaId(userId, mangaId);
+        
+        if (userManga.isPresent()) {
+            userMangaRepository.delete(userManga.get());
+        } else {
+            throw new RuntimeException("No se encontró registro para desmarcar");
+        }
+    }
+    public Optional<UserBook> getUserBookByUserIdAndBookId(Long userId, Long bookId) {
+        return userBookRepository.findByUserIdAndBookId(userId, bookId);
+    }
 }

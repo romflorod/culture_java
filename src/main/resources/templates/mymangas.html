@@ -1,0 +1,147 @@
+<!-- filepath: d:\javaculture\culture\src\main\resources\templates\mymangas.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mis Mangas</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Mis Mangas</h1>
+        
+        <!-- Mensaje de confirmación de desmarcado -->
+        <div th:if="${param.unmarked != null}" class="alert alert-info">
+            Manga desmarcado correctamente.
+        </div>
+        
+        <div class="text-end mb-4">
+            <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
+            <a href="/searchmanga" class="btn btn-outline-primary">Buscar Mangas</a>
+            <a href="/searchanime" class="btn btn-outline-info">Buscar Animes</a>
+            <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
+            <a href="/searchbook" class="btn btn-outline-info">Buscar Libros</a>
+        </div>
+        
+        <!-- Mangas leídos -->
+        <div class="mt-5">
+            <h2>Mangas leídos</h2>
+            <div th:if="${read != null && !read.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userManga : ${read}">
+                        <div class="card h-100">
+                            <img th:src="${userManga.manga.imageUrl}" class="card-img-top" alt="Portada del Manga" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userManga.manga.title}"></h5>
+                                <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
+                                <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'Marcado como leído el ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userManga.manga.detailsUrl != null && userManga.manga.detailsUrl != ''}" 
+                                   th:href="${userManga.manga.detailsUrl}" 
+                                   target="_blank" 
+                                   class="btn btn-primary">Ver en MyAnimeList</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkManga}" method="post">
+                                    <input type="hidden" name="mangaId" th:value="${userManga.manga.id}">
+                                    <input type="hidden" name="returnTo" value="mymangas">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${read == null || read.isEmpty()}">
+                <p>No has marcado ningún manga como leído.</p>
+            </div>
+        </div>
+        
+        <!-- Mangas en lectura -->
+        <div class="mt-5">
+            <h2>Mangas en lectura</h2>
+            <div th:if="${following != null && !following.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userManga : ${following}">
+                        <div class="card h-100">
+                            <img th:src="${userManga.manga.imageUrl}" class="card-img-top" alt="Portada del Manga" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userManga.manga.title}"></h5>
+                                <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
+                                <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'En lectura desde ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userManga.manga.detailsUrl != null && userManga.manga.detailsUrl != ''}" 
+                                   th:href="${userManga.manga.detailsUrl}" 
+                                   target="_blank" 
+                                   class="btn btn-primary">Ver en MyAnimeList</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkManga}" method="post">
+                                    <input type="hidden" name="mangaId" th:value="${userManga.manga.id}">
+                                    <input type="hidden" name="returnTo" value="mymangas">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${following == null || following.isEmpty()}">
+                <p>No estás leyendo ningún manga actualmente.</p>
+            </div>
+        </div>
+        
+        <!-- Mangas pendientes -->
+        <div class="mt-5">
+            <h2>Mangas pendientes</h2>
+            <div th:if="${pending != null && !pending.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userManga : ${pending}">
+                        <div class="card h-100">
+                            <img th:src="${userManga.manga.imageUrl}" class="card-img-top" alt="Portada del Manga" style="height: 300px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userManga.manga.title}"></h5>
+                                <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
+                                <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'En lista de pendientes desde ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userManga.manga.detailsUrl != null && userManga.manga.detailsUrl != ''}" 
+                                   th:href="${userManga.manga.detailsUrl}" 
+                                   target="_blank" 
+                                   class="btn btn-primary">Ver en MyAnimeList</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkManga}" method="post">
+                                    <input type="hidden" name="mangaId" th:value="${userManga.manga.id}">
+                                    <input type="hidden" name="returnTo" value="mymangas">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${pending == null || pending.isEmpty()}">
+                <p>No tienes mangas en tu lista de pendientes.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
