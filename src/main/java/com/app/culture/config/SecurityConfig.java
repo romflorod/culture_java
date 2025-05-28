@@ -24,7 +24,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/register", "/h2-console/**", 
                 "/css/**", "/js/**","/searchanime","/api/animes/**","/markAnime",
-                "/myanimes","/searchanime", "/searchmovie", "/markMovie", "/mymovies").permitAll() // Permitir acceso público a /api/animes/**
+                "/myanimes","/searchanime", "/searchmovie", "/markMovie", "/mymovies","/searchbook", "/markBook", "/mybooks").permitAll() // Permitir acceso público a /api/animes/**
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

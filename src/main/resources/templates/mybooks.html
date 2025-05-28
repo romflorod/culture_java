@@ -1,0 +1,104 @@
+<!-- filepath: d:\javaculture\culture\src\main\resources\templates\mybooks.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mis Libros</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Mis Libros</h1>
+        
+        <div class="text-end mb-4">
+            <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
+            <a href="/searchbook" class="btn btn-outline-primary">Buscar Libros</a>
+            <a href="/myanimes" class="btn btn-outline-info">Mis Animes</a>
+            <a href="/mymovies" class="btn btn-outline-info">Mis Películas</a>
+        </div>
+        
+        <!-- Libros leídos -->
+        <div class="mt-5">
+            <h2>Libros leídos</h2>
+            <div th:if="${read != null && !read.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userBook : ${read}">
+                        <div class="card h-100">
+                            <img th:src="${userBook.book.imageUrl}" class="card-img-top" alt="Portada del Libro" style="height: 300px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userBook.book.title}"></h5>
+                                <p class="card-text"><strong>Autor:</strong> <span th:text="${userBook.book.authors}"></span></p>
+                                <p class="card-text"><strong>Editorial:</strong> <span th:text="${userBook.book.publisher}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'Marcado como leído el ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${read == null || read.isEmpty()}">
+                <p>No has marcado ningún libro como leído.</p>
+            </div>
+        </div>
+        
+        <!-- Libros en seguimiento -->
+        <div class="mt-5">
+            <h2>Libros en lectura</h2>
+            <div th:if="${following != null && !following.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userBook : ${following}">
+                        <div class="card h-100">
+                            <img th:src="${userBook.book.imageUrl}" class="card-img-top" alt="Portada del Libro" style="height: 300px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userBook.book.title}"></h5>
+                                <p class="card-text"><strong>Autor:</strong> <span th:text="${userBook.book.authors}"></span></p>
+                                <p class="card-text"><strong>Editorial:</strong> <span th:text="${userBook.book.publisher}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'En lectura desde ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${following == null || following.isEmpty()}">
+                <p>No estás leyendo ningún libro actualmente.</p>
+            </div>
+        </div>
+        
+        <!-- Libros pendientes -->
+        <div class="mt-5">
+            <h2>Libros pendientes</h2>
+            <div th:if="${pending != null && !pending.isEmpty()}">
+                <div class="row">
+                    <div class="col-md-4 mb-4" th:each="userBook : ${pending}">
+                        <div class="card h-100">
+                            <img th:src="${userBook.book.imageUrl}" class="card-img-top" alt="Portada del Libro" style="height: 300px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${userBook.book.title}"></h5>
+                                <p class="card-text"><strong>Autor:</strong> <span th:text="${userBook.book.authors}"></span></p>
+                                <p class="card-text"><strong>Editorial:</strong> <span th:text="${userBook.book.publisher}"></span></p>
+                                <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
+                                <p class="card-text"><small class="text-muted" th:text="'En lista de pendientes desde ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${pending == null || pending.isEmpty()}">
+                <p>No tienes libros en tu lista de pendientes.</p>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

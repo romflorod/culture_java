@@ -1,11 +1,14 @@
 package com.app.culture.service;
 
 import com.app.culture.model.Anime;
+import com.app.culture.model.Book;
 import com.app.culture.model.Movie;
 import com.app.culture.model.User;
 import com.app.culture.model.UserAnime;
+import com.app.culture.model.UserBook;
 import com.app.culture.model.UserMovie;
 import com.app.culture.repository.UserAnimeRepository;
+import com.app.culture.repository.UserBookRepository;
 import com.app.culture.repository.UserMovieRepository;
 import com.app.culture.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,10 @@ public class UserService {
 
     @Autowired
     private UserMovieRepository userMovieRepository;
+
+    @Autowired
+    private UserBookRepository userBookRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
     
@@ -122,4 +129,35 @@ public class UserService {
     public List<UserMovie> getUserMoviesByStatus(Long userId, String status) {
         return userMovieRepository.findByUserIdAndStatus(userId, status);
     }
+    public void markBookForUser(Long userId, Long bookId, String status) {
+        // Buscar si ya existe una relación entre este usuario y libro
+        Optional<UserBook> existingMark = userBookRepository.findByUserIdAndBookId(userId, bookId);
+        
+        if (existingMark.isPresent()) {
+            // Actualizar el status
+            UserBook userBook = existingMark.get();
+            userBook.setStatus(status);
+            userBookRepository.save(userBook);
+        } else {
+            // Crear nueva relación
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            Book book = new Book();
+            book.setId(bookId);
+            
+            UserBook userBook = new UserBook();
+            userBook.setUser(user);
+            userBook.setBook(book);
+            userBook.setStatus(status);
+            userBookRepository.save(userBook);
+        }
     }
+
+    public List<UserBook> getUserBooks(Long userId) {
+        return userBookRepository.findByUserId(userId);
+    }
+
+    public List<UserBook> getUserBooksByStatus(Long userId, String status) {
+        return userBookRepository.findByUserIdAndStatus(userId, status);
+    }
+}
