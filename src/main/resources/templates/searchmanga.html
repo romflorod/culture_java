@@ -51,6 +51,11 @@
                                 <p class="card-text"><strong>Estado:</strong> <span th:text="${manga.status}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(manga.description, 150)}"></p>
                                 
+                                <!-- Añadir botón para ver detalles -->
+                                <a th:href="@{'/mangadetails/' + ${manga.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
+                                
                                 <!-- Badges de estado -->
                                 <div th:if="${userMangaStatuses != null && userMangaStatuses.containsKey(manga.id)}" class="mt-2">
                                     <span th:if="${userMangaStatuses.get(manga.id) == 'leido'}" 

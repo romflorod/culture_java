@@ -1,4 +1,3 @@
-<!-- filepath: d:\javaculture\culture\src\main\resources\templates\mymangas.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -38,6 +37,12 @@
                                 <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
                                 <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                
+                                <!-- Añadir botón para ver detalles -->
+                                <a th:href="@{'/mangadetails/' + ${userManga.manga.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
+                                
                                 <p class="card-text"><small class="text-muted" th:text="'Marcado como leído el ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
                             <div class="card-footer d-flex justify-content-between">
@@ -77,6 +82,12 @@
                                 <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
                                 <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                
+                                <!-- Añadir botón para ver detalles -->
+                                <a th:href="@{'/mangadetails/' + ${userManga.manga.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
+                                
                                 <p class="card-text"><small class="text-muted" th:text="'En lectura desde ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
                             <div class="card-footer d-flex justify-content-between">
@@ -116,6 +127,12 @@
                                 <p class="card-text"><strong>Capítulos:</strong> <span th:text="${userManga.manga.chapters}"></span></p>
                                 <p class="card-text"><strong>Volúmenes:</strong> <span th:text="${userManga.manga.volumes}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(userManga.manga.description, 150)}"></p>
+                                
+                                <!-- Añadir botón para ver detalles -->
+                                <a th:href="@{'/mangadetails/' + ${userManga.manga.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
+                                
                                 <p class="card-text"><small class="text-muted" th:text="'En lista de pendientes desde ' + ${#temporals.format(userManga.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
                             <div class="card-footer d-flex justify-content-between">

@@ -24,6 +24,7 @@
             <a href="/mymovies" class="btn btn-outline-primary">Mis Películas</a>
             <a href="/searchanime" class="btn btn-outline-info">Buscar Animes</a>
             <a href="/searchbook" class="btn btn-outline-info">Buscar Libros</a>
+            <a href="/searchmanga" class="btn btn-outline-info">Buscar Mangas</a>
         </div>
         
         <form th:action="@{/searchmovie}" method="post" class="mt-4">
@@ -51,6 +52,11 @@
                                 <p class="card-text"><strong>Género:</strong> <span th:text="${movie.genre}"></span></p>
                                 <p class="card-text"><strong>Duración:</strong> <span th:text="${movie.runtime}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(movie.plot, 150)}"></p>
+                                
+                                <!-- Añadir este botón para ver detalles -->
+                                <a th:href="@{'/moviedetails/' + ${movie.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
                                 
                                 <!-- Mostrar el estado de la película si ya está marcada -->
                                 <div th:if="${userMovieStatuses != null && userMovieStatuses.containsKey(movie.id)}" class="mt-2">

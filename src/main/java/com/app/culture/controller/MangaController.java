@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class MangaController {
@@ -170,5 +171,36 @@ public class MangaController {
         }
         
         return "redirect:/login";
+    }
+    @GetMapping("/mangadetails/{id}")
+    public String mangaDetails(@PathVariable Long id, HttpSession session, Model model) {
+        try {
+            // Obtener detalles del manga
+            Optional<Manga> mangaOpt = mangaService.getMangaById(id);
+            
+            if (mangaOpt.isPresent()) {
+                Manga manga = mangaOpt.get();
+                model.addAttribute("manga", manga);
+                
+                // Verificar si el usuario ha marcado este manga
+                Long userId = (Long) session.getAttribute("userId");
+                if (userId != null) {
+                    Optional<UserManga> userMangaOpt = userService.getUserMangaByUserIdAndMangaId(userId, id);
+                    userMangaOpt.ifPresent(userManga -> {
+                        model.addAttribute("userManga", userManga);
+                        model.addAttribute("status", userManga.getStatus());
+                    });
+                }
+                
+                return "mangadetails";
+            } else {
+                System.err.println("Manga con ID " + id + " no encontrado");
+                return "redirect:/searchmanga?error=manganotfound";
+            }
+        } catch (Exception e) {
+            System.err.println("Error al acceder a detalles del manga: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/searchmanga?error=exception";
+        }
     }
 }

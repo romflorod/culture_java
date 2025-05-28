@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class MovieController {
@@ -167,5 +168,36 @@ public class MovieController {
         }
         
         return "redirect:/login";
+    }
+    @GetMapping("/moviedetails/{id}")
+    public String movieDetails(@PathVariable Long id, HttpSession session, Model model) {
+        try {
+            // Obtener detalles de la película
+            Optional<Movie> movieOpt = movieService.getMovieById(id);
+            
+            if (movieOpt.isPresent()) {
+                Movie movie = movieOpt.get();
+                model.addAttribute("movie", movie);
+                
+                // Verificar si el usuario ha marcado esta película
+                Long userId = (Long) session.getAttribute("userId");
+                if (userId != null) {
+                    Optional<UserMovie> userMovieOpt = userService.getUserMovieByUserIdAndMovieId(userId, id);
+                    userMovieOpt.ifPresent(userMovie -> {
+                        model.addAttribute("userMovie", userMovie);
+                        model.addAttribute("status", userMovie.getStatus());
+                    });
+                }
+                
+                return "moviedetails";
+            } else {
+                System.err.println("Película con ID " + id + " no encontrada");
+                return "redirect:/searchmovie?error=movienotfound";
+            }
+        } catch (Exception e) {
+            System.err.println("Error al acceder a detalles de la película: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/searchmovie?error=exception";
+        }
     }
 }

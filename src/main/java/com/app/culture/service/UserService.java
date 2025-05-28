@@ -242,4 +242,11 @@ public class UserService {
     public Optional<UserAnime> getUserAnimeByUserIdAndAnimeId(Long userId, Long animeId) {
         return userAnimeRepository.findByUserIdAndAnimeId(userId, animeId);
     }
+    public Optional<UserMovie> getUserMovieByUserIdAndMovieId(Long userId, Long movieId) {
+        return userMovieRepository.findByUserIdAndMovieId(userId, movieId);
+    }
+    // Añadir este método al final de la clase UserService
+    public Optional<UserManga> getUserMangaByUserIdAndMangaId(Long userId, Long mangaId) {
+        return userMangaRepository.findByUserIdAndMangaId(userId, mangaId);
+    }
 }

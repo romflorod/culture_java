@@ -22,11 +22,12 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register", "/h2-console/**", 
+            .requestMatchers("/", "/login", "/register", "/h2-console/**", 
             "/css/**", "/js/**", "/searchanime", "/api/animes/**", "/markAnime", "/unmarkAnime",
-            "/myanimes", "/searchanime","/animedetails/**", "/searchmovie", "/markMovie", "/unmarkMovie", "/mymovies",
+            "/myanimes", "/searchanime", "/animedetails/**", "/searchmovie", "/moviedetails/**", 
+            "/markMovie", "/unmarkMovie", "/mymovies",
             "/searchbook", "/markBook", "/unmarkBook", "/mybooks", "/bookdetails/**",
-            "/searchmanga", "/markManga", "/unmarkManga", "/mymangas").permitAll()
+            "/searchmanga", "/markManga", "/unmarkManga", "/mymangas","/mangadetails/**").permitAll()
                     )
             .formLogin(form -> form
                 .loginPage("/login")
