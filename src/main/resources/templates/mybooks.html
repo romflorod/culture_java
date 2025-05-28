@@ -6,10 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Mis Libros</h1>
+        
+        <!-- Mensaje de confirmación de desmarcado -->
+        <div th:if="${param.unmarked != null}" class="alert alert-info">
+            Libro desmarcado correctamente.
+        </div>
         
         <div class="text-end mb-4">
             <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
@@ -33,8 +39,17 @@
                                 <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
                                 <p class="card-text"><small class="text-muted" th:text="'Marcado como leído el ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
-                            <div class="card-footer">
-                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary">Ver en Google Books</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkBook}" method="post">
+                                    <input type="hidden" name="bookId" th:value="${userBook.book.id}">
+                                    <input type="hidden" name="returnTo" value="mybooks">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -60,8 +75,17 @@
                                 <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
                                 <p class="card-text"><small class="text-muted" th:text="'En lectura desde ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
-                            <div class="card-footer">
-                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary">Ver en Google Books</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkBook}" method="post">
+                                    <input type="hidden" name="bookId" th:value="${userBook.book.id}">
+                                    <input type="hidden" name="returnTo" value="mybooks">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -87,8 +111,17 @@
                                 <p class="card-text" th:text="${#strings.abbreviate(userBook.book.description, 150)}"></p>
                                 <p class="card-text"><small class="text-muted" th:text="'En lista de pendientes desde ' + ${#temporals.format(userBook.markedAt, 'dd/MM/yyyy')}"></small></p>
                             </div>
-                            <div class="card-footer">
-                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                            <div class="card-footer d-flex justify-content-between">
+                                <a th:if="${userBook.book.previewLink != ''}" th:href="${userBook.book.previewLink}" target="_blank" class="btn btn-primary">Ver en Google Books</a>
+                                
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkBook}" method="post">
+                                    <input type="hidden" name="bookId" th:value="${userBook.book.id}">
+                                    <input type="hidden" name="returnTo" value="mybooks">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

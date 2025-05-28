@@ -6,15 +6,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Mis Películas</h1>
         
+        <!-- Mensaje de confirmación de desmarcado -->
+        <div th:if="${param.unmarked != null}" class="alert alert-info">
+            Película desmarcada correctamente.
+        </div>
+        
         <div class="text-end mb-4">
             <a href="/" class="btn btn-outline-secondary">Volver al inicio</a>
             <a href="/searchmovie" class="btn btn-outline-primary">Buscar Películas</a>
             <a href="/myanimes" class="btn btn-outline-info">Mis Animes</a>
+            <a href="/mybooks" class="btn btn-outline-info">Mis Libros</a>
         </div>
         
         <!-- Películas vistas -->
@@ -31,6 +38,16 @@
                                 <p class="card-text"><strong>Director:</strong> <span th:text="${userMovie.movie.director}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(userMovie.movie.plot, 150)}"></p>
                                 <p class="card-text"><small class="text-muted" th:text="'Marcado como visto el ' + ${#temporals.format(userMovie.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer">
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkMovie}" method="post">
+                                    <input type="hidden" name="movieId" th:value="${userMovie.movie.id}">
+                                    <input type="hidden" name="returnTo" value="mymovies">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -55,6 +72,16 @@
                                 <p class="card-text"><strong>Director:</strong> <span th:text="${userMovie.movie.director}"></span></p>
                                 <p class="card-text" th:text="${#strings.abbreviate(userMovie.movie.plot, 150)}"></p>
                                 <p class="card-text"><small class="text-muted" th:text="'En seguimiento desde ' + ${#temporals.format(userMovie.markedAt, 'dd/MM/yyyy')}"></small></p>
+                            </div>
+                            <div class="card-footer">
+                                <!-- Botón para desmarcar -->
+                                <form th:action="@{/unmarkMovie}" method="post">
+                                    <input type="hidden" name="movieId" th:value="${userMovie.movie.id}">
+                                    <input type="hidden" name="returnTo" value="mymovies">
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Desmarcar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>

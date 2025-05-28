@@ -97,6 +97,17 @@ public class UserService {
     public List<UserAnime> getUserAnimesByStatus(Long userId, String status) {
         return userAnimeRepository.findByUserIdAndStatus(userId, status);
     }
+
+    public void unmarkAnimeForUser(Long userId, Long animeId) {
+        Optional<UserAnime> userAnime = userAnimeRepository.findByUserIdAndAnimeId(userId, animeId);
+        
+        if (userAnime.isPresent()) {
+            userAnimeRepository.delete(userAnime.get());
+        } else {
+            throw new RuntimeException("No se encontró registro para desmarcar");
+        }
+    }
+
     // Métodos para manejar películas del usuario
     public void markMovieForUser(Long userId, Long movieId, String status) {
         // Buscar si ya existe una relación entre este usuario y película
@@ -129,7 +140,7 @@ public class UserService {
     public List<UserMovie> getUserMoviesByStatus(Long userId, String status) {
         return userMovieRepository.findByUserIdAndStatus(userId, status);
     }
-    public void markBookForUser(Long userId, Long bookId, String status) {
+     public void markBookForUser(Long userId, Long bookId, String status) {
         // Buscar si ya existe una relación entre este usuario y libro
         Optional<UserBook> existingMark = userBookRepository.findByUserIdAndBookId(userId, bookId);
         
@@ -152,7 +163,15 @@ public class UserService {
             userBookRepository.save(userBook);
         }
     }
-
+    public void unmarkMovieForUser(Long userId, Long movieId) {
+        Optional<UserMovie> userMovie = userMovieRepository.findByUserIdAndMovieId(userId, movieId);
+        
+        if (userMovie.isPresent()) {
+            userMovieRepository.delete(userMovie.get());
+        } else {
+            throw new RuntimeException("No se encontró registro para desmarcar");
+        }
+    }
     public List<UserBook> getUserBooks(Long userId) {
         return userBookRepository.findByUserId(userId);
     }
@@ -160,4 +179,13 @@ public class UserService {
     public List<UserBook> getUserBooksByStatus(Long userId, String status) {
         return userBookRepository.findByUserIdAndStatus(userId, status);
     }
+    public void unmarkBookForUser(Long userId, Long bookId) {
+        Optional<UserBook> userBook = userBookRepository.findByUserIdAndBookId(userId, bookId);
+        
+        if (userBook.isPresent()) {
+            userBookRepository.delete(userBook.get());
+        } else {
+            throw new RuntimeException("No se encontró registro para desmarcar");
+        }
+}
 }

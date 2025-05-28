@@ -123,4 +123,51 @@ public class BookController {
         
         return "redirect:/login";
     }
+    @PostMapping("/unmarkBook")
+    public String unmarkBook(@RequestParam Long bookId,
+                        @RequestParam(required = false) String query,
+                        @RequestParam(required = false) String returnTo,
+                        HttpSession session,
+                        Model model) {
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        if (userId != null) {
+            try {
+                userService.unmarkBookForUser(userId, bookId);
+                
+                // Si hay un parámetro de retorno, lo usamos para la redirección
+                if (returnTo != null && returnTo.equals("mybooks")) {
+                    return "redirect:/mybooks?unmarked=true";
+                }
+                
+                // Si hay una consulta de búsqueda, redirigir de nuevo a los resultados
+                if (query != null && !query.isEmpty()) {
+                    // Ejecutar la misma búsqueda de nuevo para mantener resultados
+                    List<Book> books = bookService.searchAndSaveBooks(query);
+                    
+                    // Obtener estados actualizados de los libros del usuario
+                    Map<Long, String> userBookStatuses = new HashMap<>();
+                    List<UserBook> userBooks = userService.getUserBooks(userId);
+                    
+                    for (UserBook userBook : userBooks) {
+                        userBookStatuses.put(userBook.getBook().getId(), userBook.getStatus());
+                    }
+                    
+                    model.addAttribute("userBookStatuses", userBookStatuses);
+                    model.addAttribute("books", books);
+                    model.addAttribute("unmarked", true);
+                    model.addAttribute("query", query);
+                    return "searchbook";
+                }
+                
+                return "redirect:/searchbook?unmarked=true";
+            } catch (Exception e) {
+                // Manejar error
+                return "redirect:/searchbook?error=true";
+            }
+        }
+        
+        return "redirect:/login";
+    }
 }

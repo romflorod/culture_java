@@ -121,4 +121,51 @@ public class AnimeController {
         
         return "redirect:/login";
     }
+    @PostMapping("/unmarkAnime")
+    public String unmarkAnime(@RequestParam Long animeId,
+                            @RequestParam(required = false) String query,
+                            @RequestParam(required = false) String returnTo,
+                            HttpSession session,
+                            Model model) {
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        if (userId != null) {
+            try {
+                userService.unmarkAnimeForUser(userId, animeId);
+                
+                // Si hay un parámetro de retorno, lo usamos para la redirección
+                if (returnTo != null && returnTo.equals("myanimes")) {
+                    return "redirect:/myanimes?unmarked=true";
+                }
+                
+                // Si hay una consulta de búsqueda, redirigir de nuevo a los resultados
+                if (query != null && !query.isEmpty()) {
+                    // Ejecutar la misma búsqueda de nuevo para mantener resultados
+                    List<Anime> animes = animeService.fetchAndSaveAnimes(query);
+                    
+                    // Obtener estados actualizados de los animes del usuario
+                    Map<Long, String> userAnimeStatuses = new HashMap<>();
+                    List<UserAnime> userAnimes = userService.getUserAnimes(userId);
+                    
+                    for (UserAnime userAnime : userAnimes) {
+                        userAnimeStatuses.put(userAnime.getAnime().getId(), userAnime.getStatus());
+                    }
+                    
+                    model.addAttribute("userAnimeStatuses", userAnimeStatuses);
+                    model.addAttribute("animes", animes);
+                    model.addAttribute("unmarked", true);
+                    model.addAttribute("query", query);
+                    return "searchanime";
+                }
+                
+                return "redirect:/searchanime?unmarked=true";
+            } catch (Exception e) {
+                // Manejar error
+                return "redirect:/searchanime?error=true";
+            }
+        }
+        
+        return "redirect:/login";
+}
 }

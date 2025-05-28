@@ -5,14 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Buscar Libros</h1>
         
-        <!-- Mensaje de éxito -->
+        <!-- Mensajes de operaciones -->
         <div th:if="${param.marked != null || (marked != null && marked)}" class="alert alert-success">
             Libro marcado correctamente.
+        </div>
+        <div th:if="${param.unmarked != null || (unmarked != null && unmarked)}" class="alert alert-info">
+            Libro desmarcado correctamente.
         </div>
         
         <div class="text-end mb-4">
@@ -93,7 +97,18 @@
                                     </form>
                                 </div>
                                 
-                                <a th:if="${book.previewLink != ''}" th:href="${book.previewLink}" target="_blank" class="btn btn-primary w-100">Ver en Google Books</a>
+                                <!-- Nuevo botón para desmarcar, visible solo si está marcado -->
+                                <div th:if="${userBookStatuses != null && userBookStatuses.containsKey(book.id)}" class="mt-2">
+                                    <form th:action="@{/unmarkBook}" method="post">
+                                        <input type="hidden" name="bookId" th:value="${book.id}">
+                                        <input type="hidden" name="query" th:value="${query}">
+                                        <button type="submit" class="btn btn-outline-danger w-100">
+                                            <i class="bi bi-x-circle"></i> Desmarcar libro
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <a th:if="${book.previewLink != ''}" th:href="${book.previewLink}" target="_blank" class="btn btn-primary w-100 mt-2">Ver en Google Books</a>
                             </div>
                         </div>
                     </div>

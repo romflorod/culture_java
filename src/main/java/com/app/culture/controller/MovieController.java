@@ -121,4 +121,51 @@ public class MovieController {
         
         return "redirect:/login";
     }
+    @PostMapping("/unmarkMovie")
+    public String unmarkMovie(@RequestParam Long movieId,
+                            @RequestParam(required = false) String query,
+                            @RequestParam(required = false) String returnTo,
+                            HttpSession session,
+                            Model model) {
+        // Obtener el ID del usuario desde la sesión
+        Long userId = (Long) session.getAttribute("userId");
+        
+        if (userId != null) {
+            try {
+                userService.unmarkMovieForUser(userId, movieId);
+                
+                // Si hay un parámetro de retorno, lo usamos para la redirección
+                if (returnTo != null && returnTo.equals("mymovies")) {
+                    return "redirect:/mymovies?unmarked=true";
+                }
+                
+                // Si hay una consulta de búsqueda, redirigir de nuevo a los resultados
+                if (query != null && !query.isEmpty()) {
+                    // Ejecutar la misma búsqueda de nuevo para mantener resultados
+                    List<Movie> movies = movieService.searchAndSaveMovies(query);
+                    
+                    // Obtener estados actualizados de las películas del usuario
+                    Map<Long, String> userMovieStatuses = new HashMap<>();
+                    List<UserMovie> userMovies = userService.getUserMovies(userId);
+                    
+                    for (UserMovie userMovie : userMovies) {
+                        userMovieStatuses.put(userMovie.getMovie().getId(), userMovie.getStatus());
+                    }
+                    
+                    model.addAttribute("userMovieStatuses", userMovieStatuses);
+                    model.addAttribute("movies", movies);
+                    model.addAttribute("unmarked", true);
+                    model.addAttribute("query", query);
+                    return "searchmovie";
+                }
+                
+                return "redirect:/searchmovie?unmarked=true";
+            } catch (Exception e) {
+                // Manejar error
+                return "redirect:/searchmovie?error=true";
+            }
+        }
+        
+        return "redirect:/login";
+    }
 }
