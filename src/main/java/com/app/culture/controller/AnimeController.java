@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 public class AnimeController {
@@ -167,5 +168,37 @@ public class AnimeController {
         }
         
         return "redirect:/login";
-}
-}
+    }
+    // Agregar este nuevo endpoint al controlador AnimeController
+    @GetMapping("/animedetails/{id}")
+    public String animeDetails(@PathVariable Long id, HttpSession session, Model model) {
+        try {
+            // Obtener detalles del anime
+            Optional<Anime> animeOpt = animeService.getAnimeById(id);
+            
+            if (animeOpt.isPresent()) {
+                Anime anime = animeOpt.get();
+                model.addAttribute("anime", anime);
+                
+                // Verificar si el usuario ha marcado este anime
+                Long userId = (Long) session.getAttribute("userId");
+                if (userId != null) {
+                    Optional<UserAnime> userAnimeOpt = userService.getUserAnimeByUserIdAndAnimeId(userId, id);
+                    userAnimeOpt.ifPresent(userAnime -> {
+                        model.addAttribute("userAnime", userAnime);
+                        model.addAttribute("status", userAnime.getStatus());
+                    });
+                }
+                
+                return "animedetails";
+            } else {
+                System.err.println("Anime con ID " + id + " no encontrado");
+                return "redirect:/searchanime?error=animenotfound";
+            }
+        } catch (Exception e) {
+            System.err.println("Error al acceder a detalles del anime: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/searchanime?error=exception";
+        }
+    }
+} 

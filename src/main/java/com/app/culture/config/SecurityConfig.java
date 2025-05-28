@@ -24,7 +24,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/register", "/h2-console/**", 
             "/css/**", "/js/**", "/searchanime", "/api/animes/**", "/markAnime", "/unmarkAnime",
-            "/myanimes", "/searchanime", "/searchmovie", "/markMovie", "/unmarkMovie", "/mymovies",
+            "/myanimes", "/searchanime","/animedetails/**", "/searchmovie", "/markMovie", "/unmarkMovie", "/mymovies",
             "/searchbook", "/markBook", "/unmarkBook", "/mybooks", "/bookdetails/**",
             "/searchmanga", "/markManga", "/unmarkManga", "/mymangas").permitAll()
                     )

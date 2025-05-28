@@ -24,6 +24,7 @@
             <a href="/myanimes" class="btn btn-outline-primary">Mis Animes</a>
             <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
             <a href="/searchbook" class="btn btn-outline-info">Buscar Libros</a>
+            <a href="/searchmanga" class="btn btn-outline-info">Buscar Mangas</a>
         </div>
         
         <form th:action="@{/searchanime}" method="post" class="mt-4">
@@ -46,6 +47,11 @@
                             <div class="card-body">
                                 <h5 class="card-title" th:text="${anime.title}"></h5>
                                 <p class="card-text" th:text="${#strings.abbreviate(anime.description, 150)}"></p>
+                                
+                                <!-- Nuevo botón para ver detalles -->
+                                <a th:href="@{'/animedetails/' + ${anime.id}}" class="btn btn-outline-secondary w-100 mb-2">
+                                    <i class="bi bi-info-circle"></i> Ver detalles completos
+                                </a>
                                 
                                 <!-- Añadir badges de estado dentro del card-body -->
                                 <div th:if="${userAnimeStatuses != null && userAnimeStatuses.containsKey(anime.id)}" class="mt-2">

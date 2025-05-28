@@ -238,4 +238,8 @@ public class UserService {
     public Optional<UserBook> getUserBookByUserIdAndBookId(Long userId, Long bookId) {
         return userBookRepository.findByUserIdAndBookId(userId, bookId);
     }
+    // Añadir este método junto a los demás métodos de servicio de animes
+    public Optional<UserAnime> getUserAnimeByUserIdAndAnimeId(Long userId, Long animeId) {
+        return userAnimeRepository.findByUserIdAndAnimeId(userId, animeId);
+    }
 }
