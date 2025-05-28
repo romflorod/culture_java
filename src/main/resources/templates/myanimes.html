@@ -22,6 +22,11 @@
             <a href="/searchmanga" class="btn btn-outline-info">Buscar Mangas</a>
             <a href="/searchmovie" class="btn btn-outline-info">Buscar Películas</a>
             <a href="/searchbook" class="btn btn-outline-info">Buscar Libros</a>
+            <form th:action="@{/generateAnimeRecommendations}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="bi bi-lightbulb"></i> Generar Recomendaciones
+                </button>
+            </form>
         </div>
         
         <!-- Animes vistos -->

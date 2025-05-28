@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 public class AnimeController {
@@ -200,5 +201,29 @@ public class AnimeController {
             e.printStackTrace();
             return "redirect:/searchanime?error=exception";
         }
+    }
+    @PostMapping("/generateAnimeRecommendations")
+    public String generateAnimeRecommendations(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId != null) {
+            // Obtener los animes marcados por el usuario
+            List<UserAnime> userAnimes = userService.getUserAnimes(userId);
+
+            // Crear el JSON con títulos y primeras 10 palabras de la descripción
+            List<Map<String, String>> animeData = userAnimes.stream().map(userAnime -> {
+                Map<String, String> animeInfo = new HashMap<>();
+                animeInfo.put("title", userAnime.getAnime().getTitle());
+                String description = userAnime.getAnime().getDescription();
+                String first10Words = description != null ? String.join(" ", List.of(description.split(" ")).subList(0, Math.min(10, description.split(" ").length))) : "";
+                animeInfo.put("description", first10Words);
+                return animeInfo;
+            }).collect(Collectors.toList());
+
+            // Imprimir el JSON en la consola
+            System.out.println("JSON generado para recomendaciones: " + animeData);
+        }
+
+        return "redirect:/myanimes";
     }
 } 
