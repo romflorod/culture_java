@@ -25,7 +25,7 @@ public class SecurityConfig {
             .requestMatchers("/", "/login", "/register", "/h2-console/**", 
             "/css/**", "/js/**", "/searchanime", "/api/animes/**", "/markAnime", "/unmarkAnime",
             "/myanimes", "/searchanime", "/animedetails/**", "/searchmovie", "/moviedetails/**", 
-            "/markMovie", "/unmarkMovie", "/mymovies","/generateAnimeRecommendations",
+            "/markMovie", "/unmarkMovie", "/mymovies","/generateAnimeRecommendations","/generateAnimeRecommendations",
             "/searchbook", "/markBook", "/unmarkBook", "/mybooks", "/bookdetails/**",
             "/searchmanga", "/markManga", "/unmarkManga", "/mymangas","/mangadetails/**").permitAll()
                     )

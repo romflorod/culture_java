@@ -6,10 +6,16 @@ import com.app.culture.service.AnimeService;
 import com.app.culture.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +30,7 @@ public class AnimeController {
     
     @Autowired
     private UserService userService;
-
+    
     @GetMapping("/searchanime")
     public String searchAnimePage(HttpSession session, Model model) {
         // Obtener el ID del usuario desde la sesión
@@ -202,28 +208,100 @@ public class AnimeController {
             return "redirect:/searchanime?error=exception";
         }
     }
+
     @PostMapping("/generateAnimeRecommendations")
-    public String generateAnimeRecommendations(HttpSession session) {
+    public String generateAnimeRecommendations(HttpSession session, Model model) {
         Long userId = (Long) session.getAttribute("userId");
 
         if (userId != null) {
-            // Obtener los animes marcados por el usuario
             List<UserAnime> userAnimes = userService.getUserAnimes(userId);
 
-            // Crear el JSON con títulos y primeras 10 palabras de la descripción
-            List<Map<String, String>> animeData = userAnimes.stream().map(userAnime -> {
-                Map<String, String> animeInfo = new HashMap<>();
-                animeInfo.put("title", userAnime.getAnime().getTitle());
+            String animeDataForGemini = userAnimes.stream().map(userAnime -> {
+                String title = userAnime.getAnime().getTitle();
                 String description = userAnime.getAnime().getDescription();
-                String first10Words = description != null ? String.join(" ", List.of(description.split(" ")).subList(0, Math.min(10, description.split(" ").length))) : "";
-                animeInfo.put("description", first10Words);
-                return animeInfo;
-            }).collect(Collectors.toList());
+                String first10Words = "";
+                if (description != null && !description.isEmpty()) {
+                    String[] words = description.split("\\s+");
+                    first10Words = String.join(" ", java.util.Arrays.copyOfRange(words, 0, Math.min(10, words.length)));
+                }
+                return "Título: " + title + ", Descripción: " + first10Words;
+            }).collect(Collectors.joining("; "));
 
-            // Imprimir el JSON en la consola
-            System.out.println("JSON generado para recomendaciones: " + animeData);
+            String initialMessage = "Dame una recomendación de anime basada en estos que ya he visto: " + animeDataForGemini + ". Por favor, dame solo el título y una breve sinopsis.";
+
+            String recommendation = "No se pudo obtener recomendación.";
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+
+                // Usar uno de los modelos disponibles según la respuesta del curl
+                String modelName = "gemini-1.5-flash";  // Este modelo está disponible según tu respuesta de curl
+                String apiKey = "";
+                // Usar la versión v1 (no v1beta)
+                String geminiApiUrl = "https://generativelanguage.googleapis.com/v1/models/" + modelName + ":generateContent?key=" + apiKey;
+                
+                Map<String, Object> requestBody = new HashMap<>();
+                Map<String, Object> userContent = new HashMap<>();
+                userContent.put("role", "user");
+                Map<String, String> textPart = new HashMap<>();
+                textPart.put("text", initialMessage);
+                userContent.put("parts", Collections.singletonList(textPart));
+                requestBody.put("contents", Collections.singletonList(userContent));
+
+                Map<String, Object> generationConfig = new HashMap<>();
+                generationConfig.put("temperature", 0.7);
+                generationConfig.put("maxOutputTokens", 200);
+                requestBody.put("generationConfig", generationConfig);
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+                // Agregar debug para ver qué se envía
+                System.out.println("Enviando solicitud a Gemini: " + requestBody);
+                
+                ResponseEntity<Map> response = restTemplate.postForEntity(geminiApiUrl, requestEntity, Map.class);
+                
+                // Agregar debug para ver qué se recibe
+                System.out.println("Respuesta de Gemini: " + response.getStatusCode());
+                
+                // El resto del código para procesar la respuesta sigue igual
+                Map body = response.getBody();
+                if (body != null && body.containsKey("candidates")) {
+                    List<Map<String, Object>> candidates = (List<Map<String, Object>>) body.get("candidates");
+                    if (!candidates.isEmpty()) {
+                        Map<String, Object> firstCandidate = candidates.get(0);
+                        if (firstCandidate.containsKey("content")) {
+                            Map<String, Object> content = (Map<String, Object>) firstCandidate.get("content");
+                            if (content.containsKey("parts")) {
+                                List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+                                if (!parts.isEmpty()) {
+                                    recommendation = (String) ((Map<String, Object>)parts.get(0)).get("text");
+                                } else {
+                                    recommendation = "Respuesta de Gemini vacía en 'parts'.";
+                                }
+                            } else {
+                                recommendation = "Respuesta de Gemini sin 'parts'. Contenido: " + content.toString();
+                            }
+                        } else {
+                            recommendation = "Respuesta de Gemini sin 'content'. Candidato: " + firstCandidate.toString();
+                        }
+                    } else {
+                        recommendation = "Gemini no proporcionó candidatos para la recomendación.";
+                    }
+                } else {
+                    recommendation = "Respuesta de Gemini malformada o vacía. Cuerpo: " + (body != null ? body.toString() : "null");
+                }
+            } catch (Exception e) {
+                recommendation = "Error al obtener recomendación: " + e.getMessage();
+                e.printStackTrace();
+            }
+
+            model.addAttribute("recommendation", recommendation);
+            return "animerecommendation";
         }
 
-        return "redirect:/myanimes";
+        return "redirect:/login";
     }
-} 
+    
+}
